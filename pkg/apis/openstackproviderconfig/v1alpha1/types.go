@@ -68,6 +68,15 @@ type OpenstackProviderSpec struct {
 	RootVolume RootVolume `json:"root_volume,omitempty"`
 }
 
+// Validate the values of OpenstackProviderSpec
+func (m OpenstackProviderSpec) Validate() (bool, string, error) {
+	if m.UserDataSecret == nil {
+		return false, "unable to create a machine without userDataSecret", nil
+	}
+
+	return true, "allowed to be admitted", nil
+}
+
 type NetworkParam struct {
 	// The UUID of the network. Required if you omit the port attribute.
 	UUID string `json:"uuid,omitempty"`
@@ -118,6 +127,14 @@ type OpenstackClusterProviderSpec struct {
 	// ExternalNetworkID is the ID of an external OpenStack Network. This is necessary
 	// to get public internet to the VMs.
 	ExternalNetworkID string `json:"externalNetworkId,omitempty"`
+}
+
+// Validate the values of OpenstackClusterProviderSpec
+func (c OpenstackClusterProviderSpec) Validate() (bool, string, error) {
+	if c.NodeCIDR != "" && c.ExternalNetworkID == "" || c.ExternalNetworkID != "" && c.NodeCIDR == "" {
+		return false, "you must configure both nodeCidr and externalNetworkId.", nil
+	}
+	return true, "allowed to be admitted", nil
 }
 
 // +genclient
